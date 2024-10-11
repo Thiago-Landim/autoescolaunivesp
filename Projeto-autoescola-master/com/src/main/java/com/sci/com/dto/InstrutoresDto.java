@@ -20,6 +20,7 @@ public class InstrutoresDto {
     private String email;
     private boolean funcionarioAtivo;
     private String cpf;
+    private String StatusLicenca;
 
 
 }

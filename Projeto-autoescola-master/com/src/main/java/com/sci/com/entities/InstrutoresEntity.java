@@ -44,6 +44,8 @@ public class InstrutoresEntity implements Serializable {
     private boolean funcionarioAtivo;
     @Column(name = "CPF",  unique = true)
     private String cpf;  // Adicione esta linha
+    @Column(name = "status")
+    private String StatusLicenca;
 
 
     @Lob

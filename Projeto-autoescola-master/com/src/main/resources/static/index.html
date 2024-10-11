@@ -146,10 +146,12 @@
           <div class="instructor-detail">E-mail: ${data.email}</div>
           <div class="instructor-detail">Telefone: ${data.telefone || 'N/A'}</div>
           <div class="instructor-detail">Endereço: ${data.endereco || 'N/A'}</div>
-          <div class="instructor-detail">Status da Licença:
-            <span class="license-status ${data.funcionarioAtivo ? 'license-valid' : 'license-expired'}">
-              ${data.funcionarioAtivo ? 'Válida' : 'Vencida'}
-            </span>
+
+             <div class="instructor-detail">Status da Licença:
+                <span class="license-status ${data.funcionarioAtivo ? 'license-valid' : 'license-expired'}">
+                    ${data.funcionarioAtivo ? 'Válida' : 'Inválida'}
+                </span>
+            </div>
           </div>
         </div>
         ${data.photo ? `<img src="${data.photo}" alt="Foto de ${data.nomeInstrutor}" class="instructor-photo">` : ''}
