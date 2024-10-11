@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoEscola Segura - Consulta de Instrutor por CPF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 800px;
+    }
+    h1 {
+      color: #3498db;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .search-container {
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .instructor-info {
+      background-color: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .instructor-details {
+      flex: 1;
+    }
+    .instructor-name {
+      color: #3498db;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .instructor-detail {
+      color: #333;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .license-status {
+      font-weight: bold;
+    }
+    .license-valid {
+      color: #27ae60;
+    }
+    .license-expired {
+      color: #e74c3c;
+    }
+    .error-message {
+      color: #e74c3c;
+      font-weight: bold;
+      text-align: center;
+    }
+    .instructor-photo {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-left: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Consulta de Instrutor por CPF</h1>
+  <div class="search-container">
+    <input type="text" id="cpf-input" placeholder="Digite o CPF do instrutor" maxlength="14">
+    <button onclick="searchInstructor()">Consultar</button>
+  </div>
+  <div id="instructor-info" class="instructor-info"></div>
+</div>
+<script>
+  function formatCPF(cpf) {
+    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+    if (cpf.length === 11) { // Formata apenas se tiver 11 dígitos
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+    return cpf; // Retorna sem formatação se não for válido
+  }
+
+  document.getElementById('cpf-input').addEventListener('input', function (e) {
+    let cpf = e.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+    e.target.value = formatCPF(cpf); // Atualiza o valor do campo com a formatação
+  });
+
+  function searchInstructor() {
+    const cpfInput = document.getElementById('cpf-input');
+    const infoDiv = document.getElementById('instructor-info');
+    const cpf = cpfInput.value.replace(/\D/g, ''); // Remove formatação para enviar o CPF
+
+    fetch(`/sci/buscar?cpf=${encodeURIComponent(cpf)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error('Instrutor não encontrado'); // Lança erro para tratamento posterior
+              }
+            })
+            .then(data => {
+              infoDiv.innerHTML = `
+        <div class="instructor-details">
+          <div class="instructor-name">${data.nomeInstrutor}</div>
+          <div class="instructor-detail">CPF: ${data.cpf}</div>
+          <div class="instructor-detail">E-mail: ${data.email}</div>
+          <div class="instructor-detail">Telefone: ${data.telefone || 'N/A'}</div>
+          <div class="instructor-detail">Endereço: ${data.endereco || 'N/A'}</div>
+          <div class="instructor-detail">Status da Licença:
+            <span class="license-status ${data.funcionarioAtivo ? 'license-valid' : 'license-expired'}">
+              ${data.funcionarioAtivo ? 'Válida' : 'Vencida'}
+            </span>
+          </div>
+        </div>
+        ${data.photo ? `<img src="${data.photo}" alt="Foto de ${data.nomeInstrutor}" class="instructor-photo">` : ''}
+      `;
+              infoDiv.style.display = 'flex';
+            })
+            .catch(error => {
+              infoDiv.innerHTML = '<p class="error-message">Instrutor não encontrado. Verifique o CPF e tente novamente.</p>';
+              infoDiv.style.display = 'block';
+              console.error('Erro:', error);
+            });
+  }
+</script>
+</body>
+</html>
