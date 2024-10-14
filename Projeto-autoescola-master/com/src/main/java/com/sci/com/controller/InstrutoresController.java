@@ -22,7 +22,7 @@ public class InstrutoresController {
     private InstrutorService instrutorService;
 
 
-    @GetMapping("Lista")
+    @GetMapping("/Lista")
     public ResponseEntity<List<InstrutoresDto>> findAll() {
         List<InstrutoresEntity> todos = instrutorService.toList();
         List<InstrutoresDto> todosDTO = new ArrayList<>();
@@ -47,7 +47,6 @@ public class InstrutoresController {
     }
 
 
-
     @PostMapping("/save")
     public ResponseEntity<InstrutoresDto> salvarInstrutorcontroller(@RequestBody InstrutoresDto instrutoresDto) {
         InstrutoresEntity instrutorEntity = IntrutoresMapper.DtoToEntity(instrutoresDto);
@@ -56,13 +55,11 @@ public class InstrutoresController {
         if (instrutorService.buscarPorCPF(instrutorEntity.getCpf()) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // Retorna 409 se já existir
         }
+
         // Salva o novo instrutor
         InstrutoresEntity savedEntity = instrutorService.salvarInstrutor(instrutorEntity);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(IntrutoresMapper.InstrutoresToDto(savedEntity));
     }
-
-
 
 }
 
