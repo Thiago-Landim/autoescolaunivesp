@@ -35,13 +35,17 @@ public class InstrutoresController {
     @GetMapping("/buscar")
     public ResponseEntity<InstrutoresDto> buscarPorCPF(@RequestParam("cpf") String cpf) {
         InstrutoresEntity instrutoresEntity = instrutorService.buscarPorCPF(cpf);
-        instrutorService.verificarCertificadosExpirados(instrutoresEntity);
+
         if (instrutoresEntity != null) {
+            System.out.println("Verificando certificados para: " + instrutoresEntity.getNomeInstrutor());
+            instrutorService.verificarCertificadosExpirados(instrutoresEntity);
+            System.out.println("Status Licença após verificação: " + instrutoresEntity.getStatusLicenca());
             return ResponseEntity.status(HttpStatus.OK).body(IntrutoresMapper.InstrutoresToDto(instrutoresEntity));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
 
 
     @PostMapping("/save")

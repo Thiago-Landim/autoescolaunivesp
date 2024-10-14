@@ -141,20 +141,20 @@
             .then(data => {
               infoDiv.innerHTML = `
         <div class="instructor-details">
-          <div class="instructor-name">${data.nomeInstrutor}</div>
-          <div class="instructor-detail">CPF: ${data.cpf}</div>
-          <div class="instructor-detail">E-mail: ${data.email}</div>
-          <div class="instructor-detail">Telefone: ${data.telefone || 'N/A'}</div>
-          <div class="instructor-detail">Endereço: ${data.endereco || 'N/A'}</div>
+    <div class="instructor-name">${data.nomeInstrutor}</div>
+    <div class="instructor-detail">CPF: ${data.cpf}</div>
+    <div class="instructor-detail">E-mail: ${data.email}</div>
+    <div class="instructor-detail">Telefone: ${data.telefone || 'N/A'}</div>
+    <div class="instructor-detail">Endereço: ${data.endereco || 'N/A'}</div>
 
-             <div class="instructor-detail">Status da Licença:
-                <span class="license-status ${data.funcionarioAtivo ? 'license-valid' : 'license-expired'}">
-                    ${data.funcionarioAtivo ? 'Válida' : 'Inválida'}
-                </span>
-            </div>
-          </div>
-        </div>
-        ${data.photo ? `<img src="${data.photo}" alt="Foto de ${data.nomeInstrutor}" class="instructor-photo">` : ''}
+    <div class="instructor-detail">Status da Licença:
+        <span class="license-status ${data.statusLicenca === 'Válida' ? 'license-valid' : (data.statusLicenca === 'Vencida' ? 'license-expired' : 'license-invalid')}">
+            ${data.statusLicenca}
+        </span>
+    </div>
+</div>
+${data.photo ? `<img src="${data.photo}" alt="Foto de ${data.nomeInstrutor}" class="instructor-photo">` : ''}
+
       `;
               infoDiv.style.display = 'flex';
             })

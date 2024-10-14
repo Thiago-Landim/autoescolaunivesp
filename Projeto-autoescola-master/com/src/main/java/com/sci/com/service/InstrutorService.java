@@ -38,20 +38,30 @@ public class InstrutorService {
             LocalDate dataCertificado = entity.getDataCertificado();
             LocalDate hoje = LocalDate.now();
 
+            // Adicione logs para verificar as datas
+            System.out.println("Data do Certificado: " + dataCertificado);
+            System.out.println("Data de Hoje: " + hoje);
 
-            if (dataCertificado.plusYears(1).isBefore(hoje)) {
-                entity.setStatusLicenca("Vencida");
-                return 1;
-            } else {
+            // Verifica se o certificado é válido (menos de 1 ano desde a data de validade)
+            if (dataCertificado.plusYears(1).isAfter(hoje)) {
                 entity.setStatusLicenca("Válida");
-                return 0;
+                return 0; // Válido
+            } else {
+                entity.setStatusLicenca("Vencida");
+                return 1; // Vencido
             }
-        } else {
-            entity.setStatusLicenca("Inválido");
-            return -1;
         }
-    }
-}
+
+        // Caso a data do certificado seja nula
+        entity.setStatusLicenca("Data de Certificado não fornecida");
+        return -1; // Retorna um código indicando que a data não foi fornecida
+    }}
+
+
+
+
+
+
 
 
 
