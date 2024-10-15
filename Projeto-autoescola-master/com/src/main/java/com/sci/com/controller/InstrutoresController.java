@@ -3,6 +3,7 @@ package com.sci.com.controller;
 import com.sci.com.dto.InstrutoresDto;
 import com.sci.com.entities.InstrutoresEntity;
 import com.sci.com.mapper.IntrutoresMapper;
+import com.sci.com.service.EmailService;
 import com.sci.com.service.InstrutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,13 @@ public class InstrutoresController {
     @Autowired
     private InstrutorService instrutorService;
 
+    @Autowired
+    private EmailService emailService;
 
+
+
+
+    //metodo usado para fins de controle da api não será implementado
     @GetMapping("/Lista")
     public ResponseEntity<List<InstrutoresDto>> findAll() {
         List<InstrutoresEntity> todos = instrutorService.toList();
@@ -58,6 +65,8 @@ public class InstrutoresController {
 
         // Salva o novo instrutor
         InstrutoresEntity savedEntity = instrutorService.salvarInstrutor(instrutorEntity);
+        // Envia o email de boas-vindas
+        emailService.sendWelcomeEmail(savedEntity.getEmail(), savedEntity.getNomeInstrutor());
         return ResponseEntity.status(HttpStatus.CREATED).body(IntrutoresMapper.InstrutoresToDto(savedEntity));
     }
 
