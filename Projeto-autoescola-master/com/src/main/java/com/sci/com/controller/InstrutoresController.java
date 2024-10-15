@@ -5,6 +5,7 @@ import com.sci.com.entities.InstrutoresEntity;
 import com.sci.com.mapper.IntrutoresMapper;
 import com.sci.com.service.EmailService;
 import com.sci.com.service.InstrutorService;
+import com.sci.com.service.SendSms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class InstrutoresController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private SendSms sendSms;
 
 
 
@@ -55,7 +59,7 @@ public class InstrutoresController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<InstrutoresDto> salvarInstrutorcontroller(@RequestBody InstrutoresDto instrutoresDto) {
+    public ResponseEntity<InstrutoresDto> salvarInstrutorController(@RequestBody InstrutoresDto instrutoresDto) {
         InstrutoresEntity instrutorEntity = IntrutoresMapper.DtoToEntity(instrutoresDto);
 
         // Verifica se o CPF já existe
@@ -65,12 +69,33 @@ public class InstrutoresController {
 
         // Salva o novo instrutor
         InstrutoresEntity savedEntity = instrutorService.salvarInstrutor(instrutorEntity);
+
         // Envia o email de boas-vindas
         emailService.sendWelcomeEmail(savedEntity.getEmail(), savedEntity.getNomeInstrutor());
-        return ResponseEntity.status(HttpStatus.CREATED).body(IntrutoresMapper.InstrutoresToDto(savedEntity));
-    }
 
-}
+        // Formata o telefone para E.164
+        String telefoneFormatado = savedEntity.getTelefone().replaceAll("[^\\d]", ""); // Remove caracteres não numéricos
+        if (!telefoneFormatado.startsWith("55")) {
+            telefoneFormatado = "55" + telefoneFormatado; // Adiciona código do país
+        }
+        telefoneFormatado = "+" + telefoneFormatado; // Formata para E.164
+
+        // Mensagem de boas-vindas
+        String mensagemBoasVindas = "Olá " + savedEntity.getNomeInstrutor() + ", bem-vindo! Seu cadastro foi realizado com sucesso.";
+
+        // Chama o método de envio de SMS para boas-vindas
+        sendSms.sendSms(telefoneFormatado, savedEntity.getNomeInstrutor(), mensagemBoasVindas);
+
+        // Mensagem de expiração do certificado
+        String dataExpiracao = "Seu certificado vence em: " + savedEntity.getDataCertificado().plusYears(1).toString(); // Ajuste conforme necessário
+
+        // Chama o método de envio de SMS para expiração do certificado (apenas se for necessário)
+        // Aqui você pode optar por adicionar essa lógica de agendamento de mensagem, se necessário
+        // Fornecendo o lembrete imediato ou apenas quando a data se aproximar
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(IntrutoresMapper.InstrutoresToDto(savedEntity));
+    }}
+
 
 
 

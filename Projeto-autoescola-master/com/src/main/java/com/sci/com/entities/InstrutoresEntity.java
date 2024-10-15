@@ -34,7 +34,7 @@ public class InstrutoresEntity implements Serializable {
     @Column(name = "Endereco", length = 255)
     private String endereco;
 
-    @Column(name = "Telefone", length = 20)
+    @Column(name = "Telefone" )
     private String telefone;
 
     @Column(name = "EMAIL", length = 255)
