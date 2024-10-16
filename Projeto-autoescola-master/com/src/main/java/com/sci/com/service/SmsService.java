@@ -13,6 +13,7 @@ import java.util.Set;
 @Service
 public class SmsService {
 
+
     @Autowired
     private InstrutorService instrutorService;
 
@@ -21,42 +22,47 @@ public class SmsService {
 
     private Set<String> mensagensEnviadas = new HashSet<>(); // Para rastrear quais mensagens foram enviadas
 
-    // Método que verifica os certificados expirando
+    // Método que verifica os certificados vencendo e vencidos
     @Scheduled(cron = "0 * * * * ?") // Executa a cada minuto
-
-    public void verificarCertificadosExpirando() {
+    public void verificarCertificados() {
         List<InstrutoresEntity> instrutores = instrutorService.toList();
         LocalDate hoje = LocalDate.now();
 
         for (InstrutoresEntity instrutor : instrutores) {
             if (instrutor.getDataCertificado() != null) {
-                LocalDate dataCertificado = instrutor.getDataCertificado().plusYears(1);
-                LocalDate dataAviso = dataCertificado.minusDays(5);
+                LocalDate dataCertificado = instrutor.getDataCertificado();
+                LocalDate dataVencimento = dataCertificado.plusYears(1); // Certificado é válido por 1 ano
+                LocalDate dataAviso = dataVencimento.minusDays(5); // Aviso 5 dias antes do vencimento
 
-                // Verifica se a data de aviso é hoje
-                if (hoje.isEqual(dataAviso)) {
+                // Adicionando mensagens de depuração
+                System.out.println("Verificando certificados para: " + instrutor.getNomeInstrutor());
+                System.out.println("Data do Certificado: " + dataCertificado);
+                System.out.println("Data de Vencimento: " + dataVencimento);
+                System.out.println("Data de Hoje: " + hoje);
+
+                // Verifica se o certificado já está vencido
+                if (hoje.isAfter(dataVencimento)) {
+                    System.out.println("Status Licença após verificação: Vencida");
                     // Verifica se já enviou a mensagem
                     if (!mensagensEnviadas.contains(instrutor.getTelefone())) {
                         sendSms.sendSms(instrutor.getTelefone(), instrutor.getNomeInstrutor(),
-                                "Seu certificado vence em 5 dias. Por favor, renove com urgência!");
+                                "Seu certificado venceu em " + dataVencimento + ". Por favor, renove com urgência!");
                         mensagensEnviadas.add(instrutor.getTelefone()); // Marca como enviada
+                        System.out.println("Mensagem enviada para " + instrutor.getTelefone());
+                    }
+                }
+                // Verifica se a data de aviso é hoje
+                else if (hoje.isEqual(dataAviso)) {
+                    System.out.println("Status Licença após verificação: Vencendo em 5 dias");
+                    // Verifica se já enviou a mensagem
+                    if (!mensagensEnviadas.contains(instrutor.getTelefone())) {
+                        sendSms.sendSms(instrutor.getTelefone(), instrutor.getNomeInstrutor(),
+                                "Seu certificado vence em 5 dias, no dia " + dataVencimento + ". Por favor, renove com urgência!");
+                        mensagensEnviadas.add(instrutor.getTelefone()); // Marca como enviada
+                        System.out.println("Mensagem de aviso enviada para " + instrutor.getTelefone());
                     }
                 }
             }
         }
-    }
-
-
-    //preciso ajustar a logica ele faz o batch nao envia nebnsagem de expirado
-    // 2 esta mandando mensagem com a data do certificado mais 1 ano para frente
-
-
-    // Método para cadastrar um instrutor e enviar SMS
-    public void cadastrarInstrutor(InstrutoresEntity instrutor) {
-        instrutorService.salvarInstrutor(instrutor); // Salva o instrutor no banco de dados
-
-        // Enviar mensagem de boas-vindas após o cadastro
-        sendSms.sendSms(instrutor.getTelefone(), instrutor.getNomeInstrutor(),
-                "Bem-vindo, " + instrutor.getNomeInstrutor() + "! Seu cadastro foi realizado com sucesso.");
     }
 }
