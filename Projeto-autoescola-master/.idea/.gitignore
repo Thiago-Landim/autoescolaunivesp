@@ -7,3 +7,5 @@
 /dataSources/
 /dataSources.local.xml
 application-secret.properties
+/application-secret.properties
+.application-secret.properties
