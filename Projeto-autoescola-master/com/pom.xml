@@ -57,6 +57,12 @@
 			<version>10.5.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.32</version> <!-- Verifique se há uma versão mais recente -->
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

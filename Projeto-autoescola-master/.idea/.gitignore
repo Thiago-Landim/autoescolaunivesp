@@ -9,3 +9,4 @@
 application-secret.properties
 /application-secret.properties
 .application-secret.properties
+/src/main/resources/application.secret.properties
